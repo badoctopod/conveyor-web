@@ -1,0 +1,27 @@
+{:main conveyor-web.core
+ :output-to "resources/public/js/app.js"
+ :output-dir "target/public/cljs-out/dev"
+ :asset-path "cljs-out/dev"
+ :closure-defines {conveyor-web.core/DEBUG false
+                   conveyor-web.core/REQUEST-URL "https://acds-http-api.herokuapp.com/api/conveyors/hourly-rates-sample"}
+ :npm-deps false
+ :infer-externs true
+ :foreign-libs [{:file "dist/index.bundle.js"
+                 :provides ["react"
+                            "react-dom"
+                            "react-dom/server"
+                            "create-react-class"
+                            "antd"
+                            "moment"
+                            "chart"]
+                 :global-exports {react React
+                                  react-dom ReactDOM
+                                  create-react-class createReactClass
+                                  "react-dom/server" ReactDOMServer
+                                  antd antd
+                                  moment moment
+                                  chart Chart}}]}
+
+
+
+

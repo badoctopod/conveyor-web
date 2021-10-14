@@ -1,0 +1,72 @@
+name: 'Build and Deploy'
+
+on:
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "*.md"
+
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "*.md"
+
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup OpenJDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          lein: 'latest'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('project.clj') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 15
+          cache: 'npm'
+
+      - name: Install clojure dependencies
+        run: lein deps
+
+      - name: Install npm dependencies 
+        run: npm install
+
+      - name: Prepare bundle
+        run: npx webpack
+
+      - name: Compile app
+        run: lein fig:prod
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "conveyor-web"
+          heroku_email: ${{secrets.PERSONAL_EMAIL}}
+          usedocker: true
